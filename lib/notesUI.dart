@@ -37,61 +37,77 @@ class notesUIState extends State<notesUI> {
       ),
       body: notes.isEmpty
           ? Center(
-              child: Text(
-                "Tap + to create a note",
-                style: TextStyle(color: Colors.grey, fontSize: 25),
-              ),
-            )
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Text(
+                  "Tap",
+                  style: TextStyle(color: Colors.grey, fontSize: 25),
+                ),
+                SizedBox(width: 4),
+                Icon(Icons.note_add,color: Colors.grey,),
+                SizedBox(width: 4),
+                Text(
+                  "to create a note",
+                  style: TextStyle(color: Colors.grey, fontSize: 25),
+                ),
+              ],
+            ),
+          )
           : ListView.builder(
               itemCount: notes.length,
               itemBuilder: (context, index) {
                 final note = notes[index];
                 final noteId = note['ID'] as int;
-                   return Dismissible(key: Key(noteId.toString()),
-                       direction: DismissDirection.endToStart,
-                       background: Container(
-                         color: Colors.red,
-                         alignment: Alignment.centerRight,
-                         padding: EdgeInsets.symmetric(horizontal: 20),
-                         child: Icon(Icons.delete,color: Colors.white,),
-                       ),
-                       onDismissed:(direction)async{
-                     final db=await Notesdb.instance.getDB();
-                     await db.delete('Notes',where:'ID=?',whereArgs:[noteId]);
-                     setState(() {
-                       notes.removeAt(index);
-                     });
-                     ScaffoldMessenger.of(context).showSnackBar(
-                       SnackBar(content: Text('Note deleted')),
-                     );
-
-                       },
-                       child:  Card(
-                     margin: EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-                     child: ListTile(
-                       title: Text(note['Title'] ?? 'Untitled'),
-                       subtitle: Text(
-                         note['Content'] ?? ' ',
-                         maxLines: 1,
-                         overflow: TextOverflow.ellipsis,
-                       ),
-                       trailing: Text(
-                         formatTimestamp(note['Timestamp']),
-                         style: TextStyle(fontSize: 12),
-                       ),
-                       onTap: () async {
-                         final noteId = note['ID'] as int;
-                         await Navigator.push(
-                           context,
-                           MaterialPageRoute(
-                             builder: (_) => noteEditingpage(noteId: noteId),
-                           ),
-                         );
-                         await loadNotes();
-                       },
-                     ),
-                   ));
-
+                return Dismissible(
+                  key: Key(noteId.toString()),
+                  direction: DismissDirection.endToStart,
+                  background: Container(
+                    color: Colors.red,
+                    alignment: Alignment.centerRight,
+                    padding: EdgeInsets.symmetric(horizontal: 20),
+                    child: Icon(Icons.delete, color: Colors.white),
+                  ),
+                  onDismissed: (direction) async {
+                    final db = await Notesdb.instance.getDB();
+                    await db.delete(
+                      'Notes',
+                      where: 'ID=?',
+                      whereArgs: [noteId],
+                    );
+                    setState(() {
+                      notes.removeAt(index);
+                    });
+                    ScaffoldMessenger.of(
+                      context,
+                    ).showSnackBar(SnackBar(content: Text('Note deleted')));
+                  },
+                  child: Card(
+                    margin: EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                    child: ListTile(
+                      title: Text(note['Title'] ?? 'Untitled'),
+                      subtitle: Text(
+                        note['Content'] ?? ' ',
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                      trailing: Text(
+                        formatTimestamp(note['Timestamp']),
+                        style: TextStyle(fontSize: 12),
+                      ),
+                      onTap: () async {
+                        final noteId = note['ID'] as int;
+                        await Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (_) => noteEditingpage(noteId: noteId),
+                          ),
+                        );
+                        await loadNotes();
+                      },
+                    ),
+                  ),
+                );
               },
             ),
       floatingActionButton: FloatingActionButton(
